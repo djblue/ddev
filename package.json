@@ -1,6 +1,6 @@
 {
   "name": "ddev",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Script to help work with the things.",
   "bin": {
     "ddev": "ddev"
