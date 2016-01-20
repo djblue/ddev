@@ -318,6 +318,17 @@ upgrade() {
   npm install -g ddev
 }
 
+where() {
+  local b=$(which $(bin))
+  local dir=$(dirname $b)
+  local deref=$(readlink $b)
+  echo $dir/$(dirname $deref)
+}
+
+version() {
+  cat $(where)/package.json | grep version | sed -E 's/.*"(.*\.\.*.\.*)".*/\1/'
+}
+
 # future ideas
 
 is_osx() {
