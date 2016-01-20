@@ -307,7 +307,7 @@ clean() {
   confirm "delete builds in $root" && rm -rf $root/*
 }
 
-update() {
+upgrade() {
   npm install -g ddev
 }
 
