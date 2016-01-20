@@ -1,0 +1,351 @@
+#!/bin/bash
+
+# script will terminate as soon as any command fails
+set -e
+
+bin() {
+  basename $0
+}
+
+[ -n "$DEBUG" ] && set -x
+
+export MAVEN_OPTS="-Xmx4096m"
+
+root=/tmp/dutil
+dir=""
+savelog=0
+quiet=0
+
+# quit script on ctrl-c
+trap 'echo INTERRUPTED; exit 1' INT
+
+
+# echo to stderr
+echo2() {
+  echo "$@" 1>&2
+}
+
+# echo to stdout and stderr
+echo3() {
+  echo "$@"
+  echo "$@" 1>&2
+}
+
+# curl insecure https and don't print to stderr
+curl() {
+  /usr/bin/curl --insecure $@ 2>/dev/null
+}
+
+# curl and format xml
+xcurl() {
+  curl $@ | xmllint --format - | less
+}
+
+mvn-log() {
+  echo2 "running: mvn $@"
+
+  if [[ $savelog == 0 ]]; then
+    /usr/local/bin/mvn $@
+  else
+    /usr/local/bin/mvn $@ | tee "$(tmp)/log.txt"
+  fi
+}
+
+mvn-quiet() {
+  if [[ $quiet == 0 ]]; then
+    mvn-log $@
+  else
+    mvn-log $@ > /dev/null
+  fi
+}
+
+mvn() {
+  mvn-quiet $@ || fail 'mvn failed'
+}
+
+exists() {
+  type $1 > /dev/null 2>&1
+  if [ "$?" -eq "0" ]; then
+    return 0 # found
+  else
+    return 1 # not found
+  fi
+}
+
+notify() {
+  exists terminal-notifier && terminal-notifier -title "$1" -message "$2"
+}
+
+usage() {
+  echo2 "Usage: $(bin) [OPTIONS] COMMAND [arg...]
+
+The thing that does the things.
+
+Options:
+
+    -h      Display this help message
+    -s      Save output to a temp directory (default=$savelog)
+    -q      Suppress output                 (default=$quiet)
+
+Commands:
+
+  Maven:
+
+    qb      Run a maven quickbuild
+    fb      Run a maven fullbuild
+    sd      Like fb, just !documentation
+    st      Like fb, just no tests
+    re      Rebuild only updated modules and their dependencies
+
+    NOTE: any options after COMMAND get passed directly to maven.
+
+      $(bin) qb -T 1C
+
+    updated List updated maven modules (updates which haven't been comitted)
+
+  Dev Cycle:
+
+    unzip   Unzip current distribution in pwd
+    run     Run a currently unzipped distribution
+    redo    re, unzip, and run all in one
+
+    tail    Tail current build output in another window
+    list    Find in $root for saved logs
+    clean   Clean temp directory $root
+
+  Git:
+
+    pr      Checkout a pr from github as 'pr-<number>'
+
+    NOTE: assuming github fork is remote named upstream
+
+  Random:
+
+    upgrade Get newest version of this script
+
+    curl    Like normal curl, but allow insecure https
+    xcurl   Like curl, but format output as xml
+
+    findbin   Find the current executable script
+    finddist  Find the current distribution zip
+"
+  exit 2
+}
+
+pass() {
+  notify 'SUCCESS' "$@"
+  echo2 "SUCCESS: $@"
+}
+
+fail() {
+  notify 'FAILURE' "$@"
+  echo2 "FAILURE: $@"
+  exit 1
+}
+
+pr() {
+  local number=$1
+  local branch="pr-$number"
+
+  echo2 "fetching pull request #$number..."
+
+  git fetch upstream refs/pull/$number/head:$branch
+  git checkout $branch
+}
+
+run() {
+  local bin=$(findbin)
+  if [ -f $bin ]; then
+    echo2 $bin
+    $bin
+  fi
+}
+
+tail() {
+  /usr/bin/tail -f "$(list | /usr/bin/tail -n 1)"
+}
+
+list() {
+  find $root -type f $@
+}
+
+findbin() {
+  local snap=$(ls | grep SNAP || echo "error")
+  if [ -d $snap ]; then
+    find $snap | grep bin | grep -E '(d..)$'
+  else
+    fail "can't find snapshot directory"
+  fi
+}
+
+finddist() {
+  if [ -d 'distribution' ]; then
+    find ./distribution | grep 'SNAPSHOT\.zip$' | grep -vE 'kernel|sdk' | grep '\/d..'
+  else
+    fail "can't find distribution directory"
+  fi
+}
+
+zipdir() {
+  basename $1 | sed 's/.zip//'
+}
+
+unzip() {
+  local dist=$(finddist)
+  local dir=$(zipdir $dist) 
+
+  if [ "$1" == "--force" ]; then
+    rm -rf $dir
+  elif [ -d $dir ]; then
+    confirm "delete dist dir = $dir" && rm -rf $dir
+  fi
+
+  /usr/bin/unzip $dist
+}
+
+isotime() {
+  date +"%Y-%m-%dT%H:%M:%SZ"
+}
+
+git-branch() {
+  git rev-parse --abbrev-ref HEAD
+}
+
+git-commit() {
+  git rev-parse --short HEAD
+}
+
+git-root() {
+  git rev-parse --show-toplevel
+}
+
+tmp() {
+  local dir="$root/$(isotime)_$(git-branch)_$(git-commit)"
+  mkdir -p $dir
+  echo2 "temp directory: $dir"
+  echo $dir
+}
+
+itest() {
+  dir='distribution/test/itests'
+  if [ ! -d $dir ]; then
+    fail "cannot find itest directory from $(pwd)"
+  fi
+
+  cd $dir
+
+  test_class="$1"
+  test_method="$2"
+
+  if [ "$test_method" != "" ]; then
+    mvn --define test="$test_class#$test_method" test # -DisDebugEnabled=true
+  else
+    mvn --define test="$test_class" test # -DisDebugEnabled=true
+  fi
+}
+
+st() {
+  mvn $@ install --define skipTests=true
+}
+
+sd() {
+  mvn $@ install --activate-profiles '!documentation'
+}
+
+fb() {
+  mvn $@ clean install
+}
+
+qb() {
+  mvn install $@ \
+    --define findbugs.skip=true \
+    --define skipTests=true \
+    --define checkstyle.skip=true \
+    --define pmd.skip=true \
+    --define jacoco.skip=true \
+    --activate-profiles '!documentation' \
+    --no-snapshot-updates
+}
+
+re() {
+  local list=$(updated-list)
+  if [ "$list" != "" ]; then
+    qb $@ --also-make-dependents --projects $list
+  else
+    fail 'no changes since previous commit'
+  fi
+}
+
+updated() {
+  git status --untracked-files=no --short | sed -E 's/...(.*)(src.*|pom.xml)/\1/' | uniq
+}
+
+updated-list() {
+  updated | tr '\n' ','
+}
+
+redo() {
+  re $@ -T 1C
+  unzip --force
+  run
+}
+
+confirm() {
+  # call with a prompt string or use a default
+  read -r -p "${1:-Are you sure?} [y/N]: " response
+  case $response in
+    [yY][eE][sS]|[yY]) 
+      true
+      ;;
+    *)
+      false
+      ;;
+  esac
+}
+
+clean() {
+  confirm "delete builds in $root" && rm -rf $root/*
+}
+
+update() {
+  npm install -g ddev
+}
+
+# future ideas
+
+is_osx() {
+  if [[ "$(uname)" == "Darwin" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# quickly setup a dev environment on osx
+setup-osx() {
+  # install java, node
+  echo 'TODO: implement setup-osx.'
+}
+
+setup() {
+  is_osx && setup-osx
+}
+
+while getopts ":hqs" opt; do
+  case "$opt" in
+  h) usage ;;
+  q) quiet=1 ;;
+  s) savelog=1 ;;
+  esac
+done
+shift $(expr $OPTIND - 1)
+
+
+if [ "$1" == "" ]; then
+  usage
+fi
+
+cmd=$1
+shift
+
+$cmd $@ || usage

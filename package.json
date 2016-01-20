@@ -1,0 +1,13 @@
+{
+  "name": "ddev",
+  "version": "0.0.0",
+  "description": "Script to help work with the things.",
+  "bin": {
+    "ddev": "ddev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/djblue/ddev"
+  },
+  "license": "MIT"
+}
