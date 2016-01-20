@@ -12,7 +12,7 @@ bin() {
 export MAVEN_OPTS="-Xmx4096m"
 
 root=/tmp/dutil
-dir=""
+unzipdir=""
 savelog=0
 quiet=0
 
@@ -193,6 +193,7 @@ zipdir() {
 unzip() {
   local dist=$(finddist)
   local dir=$(zipdir $dist) 
+  unzipdir=$dir
 
   if [ "$1" == "--force" ]; then
     rm -rf $dir
@@ -227,7 +228,7 @@ tmp() {
 }
 
 itest() {
-  dir='distribution/test/itests'
+  local dir='distribution/test/itests'
   if [ ! -d $dir ]; then
     fail "cannot find itest directory from $(pwd)"
   fi
@@ -288,6 +289,11 @@ redo() {
   re $@ -T 1C
   unzip --force
   run
+}
+
+redorm() {
+  redo $@
+  rm -rf $unzipdir
 }
 
 confirm() {
