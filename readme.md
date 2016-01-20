@@ -1,4 +1,4 @@
-# ddf-dev
+# ddev
 
 A handy little bash script to help work on things.
 
