@@ -12,7 +12,7 @@ bin() {
 export MAVEN_OPTS="-Xmx4096m"
 
 root=/tmp/dutil
-dir=""
+unzipdir=""
 savelog=0
 quiet=0
 
@@ -108,6 +108,7 @@ Commands:
     unzip   Unzip current distribution in pwd
     run     Run a currently unzipped distribution
     redo    re, unzip, and run all in one
+    redorm  redo, and remove the unzip directory
 
     tail    Tail current build output in another window
     list    Find in $root for saved logs
@@ -193,6 +194,7 @@ zipdir() {
 unzip() {
   local dist=$(finddist)
   local dir=$(zipdir $dist) 
+  unzipdir=$dir
 
   if [ "$1" == "--force" ]; then
     rm -rf $dir
@@ -227,7 +229,7 @@ tmp() {
 }
 
 itest() {
-  dir='distribution/test/itests'
+  local dir='distribution/test/itests'
   if [ ! -d $dir ]; then
     fail "cannot find itest directory from $(pwd)"
   fi
@@ -288,6 +290,11 @@ redo() {
   re $@ -T 1C
   unzip --force
   run
+}
+
+redorm() {
+  redo $@
+  rm -rf $unzipdir
 }
 
 confirm() {
