@@ -108,6 +108,7 @@ Commands:
     unzip   Unzip current distribution in pwd
     run     Run a currently unzipped distribution
     redo    re, unzip, and run all in one
+    redorm  redo, and remove the unzip directory
 
     tail    Tail current build output in another window
     list    Find in $root for saved logs
