@@ -34,11 +34,11 @@ export RESET_FORMATTING=`tput sgr0`
 
 mvn-color() {
   sed -E \
-    -e "s/^(\[INFO\]) (.*)$/${TEXT_BLUE}\1${TEXT_WHITE}\2${RESET_FORMATTING}/g" \
-    -e "s/^(\[WARNING\])/${TEXT_YELLOW}\1${RESET_FORMATTING}/g" \
-    -e "s/^(\[ERROR\])/${TEXT_RED}\1${RESET_FORMATTING}/g" \
-    -e "s/^(\[debug\])/${TEXT_GREEN}\1${RESET_FORMATTING}/g" \
-    -e "s/^Tests run: ([^,]*), Failures: ([^,]*), Errors: ([^,]*), Skipped: ([^,]*)/${BOLD}${TEXT_GREEN}Tests run: \1${RESET_FORMATTING}, Failures: ${BOLD}${TEXT_RED}\2${RESET_FORMATTING}, Errors: ${BOLD}${TEXT_RED}\3${RESET_FORMATTING}, Skipped: ${BOLD}${TEXT_YELLOW}\4${RESET_FORMATTING}/g"
+    -e "s/(\[INFO\])(.*)/${TEXT_BLUE}\1${TEXT_WHITE}\2${RESET_FORMATTING}/g" \
+    -e "s/(\[WARNING\])/${TEXT_YELLOW}\1${RESET_FORMATTING}/g" \
+    -e "s/(\[ERROR\])/${TEXT_RED}\1${RESET_FORMATTING}/g" \
+    -e "s/(\[debug\])/${TEXT_GREEN}\1${RESET_FORMATTING}/g" \
+    -e "s/Tests run: ([^,]*), Failures: ([^,]*), Errors: ([^,]*), Skipped: ([^,]*)/${BOLD}${TEXT_GREEN}Tests run: \1${RESET_FORMATTING}, Failures: ${BOLD}${TEXT_RED}\2${RESET_FORMATTING}, Errors: ${BOLD}${TEXT_RED}\3${RESET_FORMATTING}, Skipped: ${BOLD}${TEXT_YELLOW}\4${RESET_FORMATTING}/g"
 
   echo -ne ${RESET_FORMATTING}
 }
