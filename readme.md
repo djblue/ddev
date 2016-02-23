@@ -8,7 +8,9 @@ A handy little bash script to help work on things.
 
 ## usage
 
-TODO
+To print usage, do:
+
+    ddev # without any arguments
 
 ## why npm?
 
