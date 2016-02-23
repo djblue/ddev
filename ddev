@@ -11,10 +11,15 @@ bin() {
 
 export MAVEN_OPTS="-Xmx4096m"
 
-root=/tmp/dutil
+root=/tmp/ddev
 unzipdir=""
 savelog=0
 quiet=0
+
+mvn=$(which mvn)
+curl=$(which curl)
+unzip=$(which unzip)
+tail=$(which tail)
 
 # quit script on ctrl-c
 trap 'echo INTERRUPTED; exit 1' INT
@@ -33,7 +38,7 @@ echo3() {
 
 # curl insecure https and don't print to stderr
 curl() {
-  /usr/bin/curl --insecure $@ 2>/dev/null
+  $curl --insecure $@ 2>/dev/null
 }
 
 # curl and format xml
@@ -45,9 +50,9 @@ mvn-log() {
   echo2 "running: mvn $@"
 
   if [[ $savelog == 0 ]]; then
-    /usr/local/bin/mvn $@
+    $mvn $@
   else
-    /usr/local/bin/mvn $@ | tee "$(tmp)/log.txt"
+    $mvn $@ | tee "$(tmp)/log.txt"
   fi
 }
 
@@ -163,7 +168,7 @@ run() {
 }
 
 tail() {
-  /usr/bin/tail -f "$(list | /usr/bin/tail -n 1)"
+  $tail -f "$(list | $tail -n 1)"
 }
 
 list() {
@@ -202,7 +207,7 @@ unzip() {
     confirm "delete dist dir = $dir" && rm -rf $dir
   fi
 
-  /usr/bin/unzip $dist
+  $unzip $dist
 }
 
 isotime() {
