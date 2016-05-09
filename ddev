@@ -34,7 +34,7 @@ export RESET_FORMATTING=`tput sgr0`
 
 mvn-color() {
   sed -E \
-    -e "s/(\[INFO\])(.*)/${TEXT_BLUE}\1${TEXT_WHITE}\2${RESET_FORMATTING}/g" \
+    -e "s/(\[INFO\])/${TEXT_BLUE}\1${RESET_FORMATTING}/g" \
     -e "s/(\[WARNING\])/${TEXT_YELLOW}\1${RESET_FORMATTING}/g" \
     -e "s/(\[ERROR\])/${TEXT_RED}\1${RESET_FORMATTING}/g" \
     -e "s/(\[debug\])/${TEXT_GREEN}\1${RESET_FORMATTING}/g" \
