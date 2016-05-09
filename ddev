@@ -10,6 +10,7 @@ bin() {
 [ -n "$DEBUG" ] && set -x
 
 export MAVEN_OPTS="-Xmx4096m"
+export KARAF_DEBUG=true
 
 export BOLD=`tput bold`
 export UNDERLINE_ON=`tput smul`
