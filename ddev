@@ -147,6 +147,7 @@ Commands:
     run     Run a currently unzipped distribution
     redo    re, unzip, and run all in one
     redorm  redo, and remove the unzip directory
+    rmnode  remove all and node_modules
 
     tail    Tail current build output in another window
     list    Find in $root for saved logs
@@ -350,6 +351,10 @@ confirm() {
 
 clean() {
   confirm "delete builds in $root" && rm -rf $root/*
+}
+
+rmnode() {
+  find . -name node_modules -prune | xargs -n 1 rm -r
 }
 
 upgrade() {
