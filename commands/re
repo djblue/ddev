@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+updated() {
+  git status --untracked-files=no --short | sed -E 's/...(.*)(src.*|pom.xml)/\1/' | uniq
+}
+
+updated-list() {
+  updated | tr '\n' ','
+}
+
+list=$(updated-list)
+
+if [ "$list" != "" ]; then
+  qb $@ --also-make-dependents --projects $list | mvn-colorize
+else
+  fail 'no changes since previous commit'
+fi

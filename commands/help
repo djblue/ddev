@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+
+console.log(`Usage: ddev [OPTIONS] COMMAND [arg...]
+
+The thing that does the things.
+
+Options:
+
+    -h      Display this help message
+    -v      Display the version number
+
+Commands:
+
+  Maven:
+
+    qb      Run a maven quickbuild
+    fb      Run a maven fullbuild
+    sd      Like fb, just !documentation
+    st      Like fb, just no tests
+    re      Rebuild only updated modules and their dependencies
+
+    NOTE: any options after COMMAND get passed directly to maven.
+
+      ddev qb -T 1C
+
+  Dev Cycle:
+
+    unzip   Unzip current distribution in pwd
+    run     Run a currently unzipped distribution
+    redo    re, unzip, and run all in one
+    redorm  redo, and remove the unzip directory
+    rmnode  remove all and node_modules
+
+`)

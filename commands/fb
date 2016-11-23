@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+export MAVEN_OPTS="-Xmx4096m"
+
+mvn $@ clean install | mvn-colorize 

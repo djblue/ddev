@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+export MAVEN_OPTS="-Xmx4096m"
+
+mvn $@ install --activate-profiles '!documentation' | mvn-colorize 

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+export MAVEN_OPTS="-Xmx4096m"
+
+mvn install $@ \
+  --define findbugs.skip=true \
+  --define skipTests=true \
+  --define checkstyle.skip=true \
+  --define pmd.skip=true \
+  --define jacoco.skip=true \
+  --activate-profiles '!documentation' \
+  --no-snapshot-updates | mvn-colorize

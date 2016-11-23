@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+export MAVEN_OPTS="-Xmx4096m"
+
+mvn $@ install --define skipTests=true | mvn-colorize
