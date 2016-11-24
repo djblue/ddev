@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+
+export KARAF_DEBUG=true
+
+findbin() {
+  local snap=$(ls | grep SNAP || echo "error")
+  if [ -d $snap ]; then
+    find $snap | grep bin | grep -E '(d..)$'
+  else
+    fail "can't find snapshot directory"
+  fi
+}
+
+bin=$(findbin)
+
+if [ -f $bin ]; then
+  echo $bin
+  $bin
+fi

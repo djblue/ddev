@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+rmnode() {
+  find . -name node_modules -prune | xargs -n 1 rm -r
+}

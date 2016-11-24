@@ -13,7 +13,7 @@ updated-list() {
 list=$(updated-list)
 
 if [ "$list" != "" ]; then
-  qb $@ --also-make-dependents --projects $list | mvn-colorize
+  qb $@ --also-make-dependents --projects $list
 else
   fail 'no changes since previous commit'
 fi

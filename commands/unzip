@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -e
+
+unzip=/usr/bin/unzip
+
+confirm() {
+  # call with a prompt string or use a default
+  read -r -p "${1:-Are you sure?} [y/N]: " response
+  case $response in
+    [yY][eE][sS]|[yY]) 
+      true
+      ;;
+    *)
+      false
+      ;;
+  esac
+}
+
+finddist() {
+  if [ -d 'distribution' ]; then
+    find ./distribution | grep 'SNAPSHOT\.zip$' | grep -vE 'kernel|sdk' | grep '\/d..'
+  else
+    fail "can't find distribution directory"
+  fi
+}
+
+zipdir() {
+  basename $1 | sed 's/.zip//'
+}
+
+dist=$(finddist)
+dir=$(zipdir $dist) 
+unzipdir=$dir
+
+if [ "$1" == "--force" ]; then
+  rm -rf $dir
+elif [ -d $dir ]; then
+  confirm "delete dist dir = $dir" && rm -rf $dir
+fi
+
+$unzip $dist

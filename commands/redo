@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+re $@ -T 1C
+unzip --force
+run
