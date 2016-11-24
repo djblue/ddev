@@ -11,11 +11,11 @@ var fail = function (msg) {
 var cmd = process.argv[2]
 var opts = process.argv.slice(3)
 
-if (cmd === '-v') {
+if (cmd === '-v' || cmd === '--version') {
   cmd = 'version'
 }
 
-if (cmd === '-h') {
+if (cmd === '-h' || cmd === '--help') {
   cmd = 'help'
 }
 
