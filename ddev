@@ -290,7 +290,7 @@ st() {
 }
 
 sd() {
-  mvn $@ install --define -DskipDocs=true
+  mvn $@ install --define skipDocs=true
 }
 
 fb() {
