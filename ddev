@@ -290,7 +290,7 @@ st() {
 }
 
 sd() {
-  mvn $@ install --activate-profiles '-DskipDocs=true'
+  mvn $@ install --define -DskipDocs=true
 }
 
 fb() {
