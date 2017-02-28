@@ -131,7 +131,7 @@ Commands:
 
     qb      Run a maven quickbuild
     fb      Run a maven fullbuild
-    sd      Like fb, just !documentation
+    sd      Like fb, just -DskipDocs=true
     st      Like fb, just no tests
     re      Rebuild only updated modules and their dependencies
 
@@ -290,7 +290,7 @@ st() {
 }
 
 sd() {
-  mvn $@ install --activate-profiles '!documentation'
+  mvn $@ install --activate-profiles '-DskipDocs=true'
 }
 
 fb() {
@@ -299,12 +299,9 @@ fb() {
 
 qb() {
   mvn install $@ \
-    --define findbugs.skip=true \
+    --define skipStatic=true \
     --define skipTests=true \
-    --define checkstyle.skip=true \
-    --define pmd.skip=true \
-    --define jacoco.skip=true \
-    --activate-profiles '!documentation' \
+    --define skipDocs=true \
     --no-snapshot-updates
 }
 
