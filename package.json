@@ -3,7 +3,7 @@
   "version": "0.0.9",
   "description": "Script to help work with the things.",
   "bin": {
-    "ddev": "bin.js"
+    "ddev": "ddev"
   },
   "repository": {
     "type": "git",
